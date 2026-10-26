@@ -1,0 +1,32 @@
+# Caddy Reverse Proxy with Automatic Let's Encrypt TLS
+# Replace api.crickethub.example.com with your actual backend domain
+
+api.crickethub.example.com {
+    # Encode responses with gzip or zstd
+    encode gzip zstd
+
+    # Reverse proxy to NestJS API
+    reverse_proxy localhost:4000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote}
+        header_up X-Forwarded-For {remote}
+        header_up X-Forwarded-Proto {scheme}
+
+        # Enable WebSocket buffering & streaming for Socket.IO
+        header_up Connection {>Connection}
+        header_up Upgrade {>Upgrade}
+    }
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Access log
+    log {
+        output file /var/log/caddy/cricket_api_access.log
+    }
+}
