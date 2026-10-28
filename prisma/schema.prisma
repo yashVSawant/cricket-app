@@ -36,6 +36,12 @@ enum ExtraType {
   LEG_BYE
 }
 
+enum MemberStatus {
+  INVITED
+  ACCEPTED
+  REJECTED
+}
+
 enum WicketType {
   BOWLED
   CAUGHT
@@ -51,6 +57,7 @@ model User {
   passwordHash    String
   name            String
   role            Role              @default(PLAYER)
+  playerKey       String?           @unique
   organizerId     String?
   organizer       Organizer?        @relation(fields: [organizerId], references: [id])
   playerProfile   PlayerProfile?
@@ -61,6 +68,7 @@ model User {
 
   @@index([email])
   @@index([role])
+  @@index([playerKey])
 }
 
 model Organizer {
@@ -101,13 +109,16 @@ model Team {
 }
 
 model TeamMember {
-  teamId   String
-  playerId String
-  team     Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  player   User   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  teamId    String
+  playerId  String
+  status    MemberStatus @default(INVITED)
+  createdAt DateTime     @default(now())
+  team      Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  player    User         @relation(fields: [playerId], references: [id], onDelete: Cascade)
 
   @@id([teamId, playerId])
   @@index([playerId])
+  @@index([status])
 }
 
 model Tournament {
