@@ -1,4 +1,8 @@
 import { Module } from '@nestjs/common';
+import { LiveGateway } from './live.gateway';
 
-@Module({})
+@Module({
+  providers: [LiveGateway],
+  exports: [LiveGateway],
+})
 export class LiveModule {}
